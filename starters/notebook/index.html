@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Notebook</title>
+<style>body{margin:0;padding:80px 24px 24px;background:#151619;color:#eee;font:16px system-ui}main{max-width:760px;margin:auto}textarea{box-sizing:border-box;width:100%;min-height:45vh;padding:16px;color:inherit;background:#202126;border:1px solid #555;border-radius:8px;font:inherit}button{padding:12px 20px;margin:16px 12px 0 0;cursor:pointer}button:focus-visible,textarea:focus-visible{outline:2px solid #bbaaff;outline-offset:3px}#status{min-height:2em}</style></head>
+<body><main><h1>Notebook</h1><label for="note">Your notes</label><textarea id="note" disabled></textarea><button id="save" disabled>Save</button><button id="reload">Discard edits and reload</button><p id="status" role="status">Connecting…</p></main>
+<script src="_vela/sdk.js"></script><script>
+const note=document.getElementById('note'),status=document.getElementById('status'),button=document.getElementById('save');let revision=0,busy=false;
+async function read(){const saved=await Vela.storage.read();note.value=saved.value?.text||'';revision=saved.revision;note.disabled=false;button.disabled=false;await Vela.setUnsavedChanges(false);status.textContent='Loaded from your engine';}
+async function save(){if(busy)throw Error('Save in progress');busy=true;button.disabled=true;note.disabled=true;try{const saved=await Vela.storage.write({text:note.value},revision);revision=saved.revision;await Vela.setUnsavedChanges(false);status.textContent='Saved';}catch(error){status.textContent=error.status===409?'Another client saved changes. Your draft is retained; copy it before reloading.':error.message;throw error;}finally{busy=false;button.disabled=false;note.disabled=false;}}
+note.oninput=()=>Vela.setUnsavedChanges(true).catch(error=>status.textContent=error.message);
+button.onclick=()=>save().catch(()=>{});Vela.onSave(save);
+document.getElementById('reload').onclick=()=>read().catch(error=>status.textContent=error.message);
+Vela.ready.then(read).catch(error=>status.textContent=error.message);
+// Leave sufficient space for the host's reserved exit rectangle in seamless mode.
+Vela.onContext(context=>{const rect=context.viewport?.hostControl;if(rect)document.body.style.paddingTop=Math.max(80,rect.y+rect.height+24)+'px';});
+</script></body></html>

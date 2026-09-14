@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "id": "notebook",
+  "name": "Notebook",
+  "version": "1.0.0",
+  "description": "A small SDK notebook with revision-safe saves.",
+  "author": "Local developer",
+  "category": "productivity",
+  "compatibility": {"bridge": 1},
+  "runtime": {"static": {"entry": "index.html"}},
+  "view": {"surface": "embedded", "chrome": "compact"},
+  "capabilities": {"required": ["storage"]},
+  "data": {"schemaVersion": 1, "schema": "data.schema.json"}
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "connect-existing-ollama",
+  "ownership": "connected",
+  "adapterAppId": "ollama",
+  "prerequisites": ["An existing Ollama server reachable from the Vela engine"],
+  "configuration": {"provider": "ollama", "endpointExample": "http://127.0.0.1:11434"},
+  "operations": ["server.version", "models.list", "models.show"],
+  "removal": "Remove only the Vela binding and wrapper. Keep the server and its models."
+}
