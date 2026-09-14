@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0 - 2026-09-14
+
 ### Added
 
 - App starters and connection recipes for Vela developers.
