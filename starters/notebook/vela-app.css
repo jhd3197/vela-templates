@@ -1,0 +1,411 @@
+/* Vela app layout — the shared surfaces, spacing and controls a Vela app uses
+   so it reads as part of the server's workspace while owning its own content.
+
+   The host renders the rail and the contextual header outside this document;
+   this file styles what the app owns: an optional list/navigation panel, the
+   work surface, and the small controls in between.
+
+   Theme follows the host: set `data-vela-theme="light" | "dark"` on <html> from
+   `Vela.context.theme` (see vela-theme.js). Nothing here reaches outside the
+   app's own frame, and no host credentials or DOM are involved.
+
+   Fonts are system-resolved. Inter matches the Vela dashboard when it is
+   installed locally; the fallbacks keep an offline server looking right. */
+
+:root {
+  --vela-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --vela-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  --vela-workspace: #f3f5fe;
+  --vela-panel: #ffffff;
+  --vela-card: #ffffff;
+  --vela-field: #f3f5fe;
+  --vela-inset: #e4e7f5;
+  --vela-border: #cfd3e5;
+  --vela-border-strong: #b2b6ca;
+  --vela-text: #292b31;
+  --vela-dim: #595d6c;
+  --vela-faint: #75798c;
+  --vela-danger: #d5483a;
+
+  /* Apps keep their own accent: identity inside a shared frame. */
+  --vela-accent: #796cbf;
+  --vela-accent-strong: #5d5294;
+  --vela-accent-soft: #e7e5fe;
+
+  --vela-radius: 14px;
+  --vela-radius-sm: 9px;
+  --vela-panel-w: 264px;
+  --vela-shadow: 0 0 0 1px var(--vela-border), 0 6px 18px rgba(41, 43, 49, 0.06);
+
+  color-scheme: light;
+}
+
+[data-vela-theme='dark'] {
+  --vela-workspace: #161826;
+  --vela-panel: #1b1e2e;
+  --vela-card: #232532;
+  --vela-field: #1b1e2e;
+  --vela-inset: #1b1e2e;
+  --vela-border: color-mix(in srgb, #e9e9ed 14%, transparent);
+  --vela-border-strong: color-mix(in srgb, #e9e9ed 28%, transparent);
+  --vela-text: #e9e9ed;
+  --vela-dim: #b2b6ca;
+  --vela-faint: #9397ab;
+  --vela-danger: #e5604f;
+
+  --vela-accent-strong: #d2cefd;
+  --vela-accent-soft: color-mix(in srgb, var(--vela-accent) 18%, transparent);
+
+  --vela-shadow: 0 0 0 1px var(--vela-border);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Layout classes below set `display`, so hiding has to win over them. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--vela-workspace);
+  color: var(--vela-text);
+  font-family: var(--vela-font);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--vela-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Layout: optional panel beside the work surface ---------- */
+
+.vela-layout {
+  display: grid;
+  grid-template-columns: var(--vela-panel-w) minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+}
+
+.vela-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--vela-panel);
+  border-right: 1px solid var(--vela-border);
+}
+
+.vela-panel-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px 10px;
+}
+
+.vela-panel-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vela-faint);
+}
+
+.vela-panel-search {
+  flex: none;
+  padding: 0 14px 10px;
+}
+
+.vela-panel-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 8px 14px;
+}
+
+.vela-surface {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.vela-surface-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--vela-border);
+  background: var(--vela-card);
+}
+
+.vela-surface-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vela-surface-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 20px calc(9px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--vela-border);
+  color: var(--vela-faint);
+  font-size: 12px;
+}
+
+/* ---------- Controls ---------- */
+
+.vela-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border: 1px solid var(--vela-border);
+  border-radius: var(--vela-radius-sm);
+  background: var(--vela-card);
+  color: var(--vela-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.vela-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--vela-text) 6%, transparent);
+}
+
+.vela-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.vela-btn-primary {
+  background: transparent;
+  border-color: var(--vela-accent);
+  color: var(--vela-accent-strong);
+}
+
+.vela-btn-primary:hover:not(:disabled) {
+  background: var(--vela-accent-soft);
+}
+
+.vela-btn-danger:hover:not(:disabled) {
+  border-color: var(--vela-danger);
+  color: var(--vela-danger);
+}
+
+.vela-btn-small {
+  padding: 5px 10px;
+  font-size: 12.5px;
+}
+
+.vela-field {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--vela-border);
+  border-radius: var(--vela-radius-sm);
+  background: var(--vela-field);
+  color: var(--vela-text);
+  font: inherit;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.vela-field:focus {
+  border-color: var(--vela-accent);
+}
+
+.vela-field::placeholder {
+  color: var(--vela-faint);
+}
+
+/* ---------- List items ---------- */
+
+.vela-item {
+  display: block;
+  width: 100%;
+  padding: 9px 11px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: var(--vela-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.vela-item:hover {
+  background: color-mix(in srgb, var(--vela-text) 6%, transparent);
+}
+
+.vela-item-active {
+  background: var(--vela-accent-soft);
+  border-color: color-mix(in srgb, var(--vela-accent) 40%, transparent);
+}
+
+.vela-item-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vela-item-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--vela-faint);
+}
+
+.vela-item-meta > .vela-item-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vela-note {
+  margin: 0;
+  padding: 22px 12px;
+  color: var(--vela-faint);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Empty state ---------- */
+
+.vela-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+}
+
+.vela-empty-glyph {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--vela-accent-soft);
+  color: var(--vela-accent-strong);
+}
+
+.vela-empty h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.vela-empty p {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--vela-dim);
+  font-size: 13.5px;
+}
+
+/* ---------- Dialogs ---------- */
+
+.vela-dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 22px;
+  border: 1px solid var(--vela-border);
+  border-radius: var(--vela-radius);
+  background: var(--vela-card);
+  color: var(--vela-text);
+  font-family: var(--vela-font);
+}
+
+.vela-dialog::backdrop {
+  background: rgba(20, 22, 33, 0.5);
+}
+
+.vela-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ---------- Narrow windows: the panel becomes the first screen ---------- */
+
+.vela-back {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .vela-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .vela-panel {
+    border-right: 0;
+  }
+
+  .vela-surface {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: var(--vela-workspace);
+    transform: translateX(100%);
+    transition: transform 220ms ease;
+  }
+
+  .vela-surface-open {
+    transform: none;
+  }
+
+  .vela-back {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vela-btn,
+  .vela-item,
+  .vela-surface {
+    transition: none;
+  }
+}

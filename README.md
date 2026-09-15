@@ -17,6 +17,29 @@ Import the generated directory through the Vela Library. App JavaScript uses
 only `_vela/sdk.js`, never engine internals. The desktop/mobile browser contract
 suite exercises all three view modes. This is a standalone repository in the Vela ecosystem.
 
+## Shared app layout
+
+Each starter ships `vela-app.css` and `vela-theme.js`. Together they give an app
+the server's surfaces, spacing, controls and light/dark appearance without
+sharing any host code, DOM or credentials — `vela-theme.js` only mirrors the one
+theme string the bridge already sends onto `data-vela-theme`.
+
+The stylesheet covers two shapes:
+
+- A single work surface: `.vela-surface` with `.vela-surface-head`,
+  `.vela-surface-body` and `.vela-surface-foot`, as the notebook starter uses.
+- Navigation beside a work surface: wrap both in `.vela-layout` and add a
+  `.vela-panel` with `.vela-panel-head`, `.vela-panel-search` and
+  `.vela-panel-list`. Below 700px the panel becomes the first screen and the
+  surface slides over it; give the surface a `.vela-back` control and add
+  `.vela-surface-open` only when someone actually chose an item.
+  [vela-notes](https://github.com/jhd3197/vela-notes) is the worked example.
+
+Override `--vela-accent` (and its `-strong`/`-soft` companions) to keep your
+app's identity inside the shared frame. Choose `hub` when you want the server's
+rail and contextual header around your app; `compact` and `seamless` keep their
+own chrome and are unchanged.
+
 [Download starter archives](https://github.com/jhd3197/vela-templates/releases/latest).
 
 ## Contributing
