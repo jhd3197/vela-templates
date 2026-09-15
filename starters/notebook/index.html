@@ -36,6 +36,7 @@
 </main>
 <script src="_vela/sdk.js"></script>
 <script src="vela-theme.js"></script>
+<script src="vela-viewport.js"></script>
 <script>
 const note=document.getElementById('note'),status=document.getElementById('status'),button=document.getElementById('save');let revision=0,busy=false;
 async function read(){const saved=await Vela.storage.read();note.value=saved.value?.text||'';revision=saved.revision;note.disabled=false;button.disabled=false;await Vela.setUnsavedChanges(false);status.textContent='Loaded from your server';}

@@ -93,14 +93,27 @@ body {
   outline-offset: 2px;
 }
 
-/* ---------- Layout: optional panel beside the work surface ---------- */
+/* ---------- Layout: optional panel beside the work surface ----------
+
+   The host sizes this frame to the workspace it can actually show, so the app
+   fills the box it was given rather than measuring a viewport unit of its own:
+   inside a frame `100dvh` is the frame's height, and on iOS it does not shrink
+   for the keyboard anyway.
+
+   Whatever the host could not show — browser chrome, a device safe area, an
+   open keyboard — arrives as `--vela-inset-*` from `vela-viewport.js`. It is
+   subtracted once, here. Nothing inside subtracts it again. `env()` is the
+   fallback for a standalone visit, where those properties are all zero. */
 
 .vela-layout {
   display: grid;
   grid-template-columns: var(--vela-panel-w) minmax(0, 1fr);
-  height: 100vh;
-  height: 100dvh;
+  height: 100%;
   min-height: 0;
+  padding-top: max(env(safe-area-inset-top), var(--vela-inset-top, 0px));
+  padding-right: max(env(safe-area-inset-right), var(--vela-inset-right, 0px));
+  padding-bottom: max(env(safe-area-inset-bottom), var(--vela-inset-bottom, 0px));
+  padding-left: max(env(safe-area-inset-left), var(--vela-inset-left, 0px));
 }
 
 .vela-panel {
@@ -139,6 +152,10 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Reaching the end of the list must not start moving the host page behind
+     this frame. Only the vertical axis is contained, so the browser's
+     horizontal back gesture still works. */
+  overscroll-behavior-y: contain;
   padding: 0 8px 14px;
 }
 
@@ -171,7 +188,8 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 9px 20px calc(9px + env(safe-area-inset-bottom));
+  /* `.vela-layout` already removed the edge protection for the whole app. */
+  padding: 9px 20px;
   border-top: 1px solid var(--vela-border);
   color: var(--vela-faint);
   font-size: 12px;
@@ -350,6 +368,9 @@ body {
 
 .vela-dialog {
   width: min(420px, calc(100vw - 32px));
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   padding: 22px;
   border: 1px solid var(--vela-border);
   border-radius: var(--vela-radius);
@@ -369,6 +390,33 @@ body {
   margin-top: 18px;
 }
 
+/* ---------- Touch ----------
+
+   A field below 16px makes iOS zoom the page when it is focused, and the page
+   stays zoomed. Raise the floor without capping anything larger: `1em` is the
+   size the field would otherwise inherit. `manipulation` drops the double-tap
+   delay on controls while leaving pinch zoom, panning and text selection
+   alone — an app that owns a custom gesture scopes `touch-action` to that
+   surface, never to the document. */
+
+@media (pointer: coarse) {
+  .vela-field,
+  input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+  textarea:not([hidden]),
+  select:not([hidden]) {
+    font-size: max(16px, 1em);
+  }
+
+  .vela-btn,
+  .vela-item,
+  a,
+  button,
+  summary,
+  label {
+    touch-action: manipulation;
+  }
+}
+
 /* ---------- Narrow windows: the panel becomes the first screen ---------- */
 
 .vela-back {
@@ -386,7 +434,12 @@ body {
 
   .vela-surface {
     position: fixed;
-    inset: 0;
+    /* Fixed positioning leaves `.vela-layout`'s padding behind, so the same
+       insets are applied here instead — not in addition. */
+    top: max(env(safe-area-inset-top), var(--vela-inset-top, 0px));
+    right: max(env(safe-area-inset-right), var(--vela-inset-right, 0px));
+    bottom: max(env(safe-area-inset-bottom), var(--vela-inset-bottom, 0px));
+    left: max(env(safe-area-inset-left), var(--vela-inset-left, 0px));
     z-index: 10;
     background: var(--vela-workspace);
     transform: translateX(100%);
