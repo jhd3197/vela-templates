@@ -17,6 +17,55 @@ Import the generated directory through the Vela Library. App JavaScript uses
 only `_vela/sdk.js`, never engine internals. The desktop/mobile browser contract
 suite exercises all three view modes. This is a standalone repository in the Vela ecosystem.
 
+## Shared app layout
+
+Each starter ships `vela-app.css`, `vela-theme.js` and `vela-viewport.js`.
+Together they give an app the server's surfaces, spacing, controls, light/dark
+appearance and viewport without sharing any host code, DOM or credentials:
+`vela-theme.js` mirrors the one theme string the bridge already sends onto
+`data-vela-theme`, and `vela-viewport.js` mirrors the four inset numbers it
+sends onto `--vela-inset-top`/`-right`/`-bottom`/`-left`. Load both after
+`_vela/sdk.js` and before your own script.
+
+The stylesheet covers two shapes:
+
+- A single work surface: `.vela-surface` with `.vela-surface-head`,
+  `.vela-surface-body` and `.vela-surface-foot`, as the notebook starter uses.
+- Navigation beside a work surface: wrap both in `.vela-layout` and add a
+  `.vela-panel` with `.vela-panel-head`, `.vela-panel-search` and
+  `.vela-panel-list`. Below 700px the panel becomes the first screen and the
+  surface slides over it; give the surface a `.vela-back` control and add
+  `.vela-surface-open` only when someone actually chose an item.
+  [vela-notes](https://github.com/jhd3197/vela-notes) is the worked example.
+
+### Fitting the frame
+
+The server owns the outer viewport: it sizes your frame to the workspace it can
+actually show, and reports what is still covered — browser chrome, a device safe
+area, an open keyboard — in the bridge context. `vela-app.css` uses
+`height: 100%` with shrinkable regions and subtracts those insets once, on
+`.vela-layout`. Keep it that way:
+
+- Do not measure a viewport unit. Inside a frame `100dvh` is the frame's height,
+  and on iOS it does not shrink for the keyboard.
+- Do not subtract the insets again lower down, and do not add your own estimate
+  of the keyboard. Whatever the server has already taken out of your frame is
+  not in those numbers.
+- `env(safe-area-inset-*)` is zero inside a frame; it is only the fallback for
+  someone opening the app outside Vela.
+- An app without `vela-viewport.js` still works: the properties stay at zero.
+
+Fields render at 16 pixels or more on a touch pointer, because anything smaller
+makes iOS zoom the page on focus and never zoom back. If a field needs larger
+text, set it on the container so `max(16px, 1em)` follows it up. Keep
+`touch-action: none` scoped to a surface that owns a custom gesture, and do not
+suppress selection, context menus or scrolling for the whole document.
+
+Override `--vela-accent` (and its `-strong`/`-soft` companions) to keep your
+app's identity inside the shared frame. Choose `hub` when you want the server's
+rail and contextual header around your app; `compact` and `seamless` keep their
+own chrome and are unchanged.
+
 [Download starter archives](https://github.com/jhd3197/vela-templates/releases/latest).
 
 ## Contributing
